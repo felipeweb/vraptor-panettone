@@ -16,10 +16,15 @@ public class SourceCode {
 	private String source;
 	private Map<Integer, TextChunk> extractedChunks;
 	private int counter = 0;
+	private ChunkLocalizer localizer;
 
-	public SourceCode(String source) {
+	public SourceCode(String source, ChunkLocalizer l) {
 		this.source = source;
 		extractedChunks = new HashMap<Integer, TextChunk>();
+		localizer = l;
+	}
+	public SourceCode(String source) {
+		this(source, new DefaultChunkLocalizer());
 	}
 	
 	public String getSource() {
@@ -45,10 +50,12 @@ public class SourceCode {
 		for(String line : lines) {
 			if(line.trim().isEmpty()) continue;
 			
-			if(line.trim().endsWith(RULECHUNK_END)) {
+			// line.trim().endsWith(RULECHUNK_END)
+			if(localizer.lineEndsWithChunkEnd(line)) {
 				newSourceCode.append(RULECHUNK_START + " " + line.trim());
 			} 
-			else if(line.trim().contains(RULECHUNK_END)) {
+			// line.trim().contains(RULECHUNK_END)
+			else if(localizer.lineContainsEndingChunk(line)) {
 				String firstPart = line.substring(0, line.indexOf(RULECHUNK_END)).trim();
 				newSourceCode.append(RULECHUNK_START + " " + firstPart + " " + RULECHUNK_END);
 
